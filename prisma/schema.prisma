@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Coupon {
+  id            String          @id @default(cuid())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  employee      String
+  description   String
+  oldSystem     Boolean
+  firstValue    Decimal?        @db.Decimal(10, 2)
+  usedValue     Decimal?        @db.Decimal(10, 2)
+  restValue     Decimal?        @db.Decimal(10, 2)
+  used          Boolean
+  location      String?
+  extraPayment  Decimal?        @db.Decimal(10, 2)
+  oldId         String?
+  tip           Decimal?        @db.Decimal(10, 2)
+  couponType    String          @default("value")
+  couponHistory CouponHistory[] @relation("CouponHistory")
+}
+
+model CouponHistory {
+  id           String   @id @default(cuid())
+  modifiedAt   DateTime @default(now())
+  employee     String
+  description  String
+  oldSystem    Boolean
+  firstValue   Decimal? @db.Decimal(10, 2)
+  usedValue    Decimal? @db.Decimal(10, 2)
+  restValue    Decimal? @db.Decimal(10, 2)
+  used         Boolean
+  couponId     String
+  extraPayment Decimal? @db.Decimal(10, 2)
+  oldId        String?
+  tip          Decimal? @db.Decimal(10, 2)
+  location     String?
+  couponType   String   @default("value")
+  coupon       Coupon   @relation("CouponHistory", fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@index([couponId, modifiedAt])
+}
